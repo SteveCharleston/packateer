@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import argparse
+import sys
+import traceback
+import yaml
+from packateerlib import Metadata, Package, Dist
+
+def getargs() -> argparse.Namespace:
+    """Parses the command line arguments.
+    :returns:
+        argparse.Namespace: The parsed arguments
+
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-m", "--metadata", help="Path to the metadata file")
+    parser.add_argument("-k", "--keepfiles", action="store_true", help="Don't delete old packages before building the new ones")
+    parser.add_argument("-d", "--dists", help="Only build the given distributions")
+    parser.add_argument("-p", "--packages", help="Only build the given packages")
+    parser.add_argument("--debug", action="store_true", help="Output debug information")
+
+    return parser.parse_args()
+
+def main(args: argparse.Namespace) -> None:
+    """Contains the program logic.
+
+    """
+    meta = Metadata(args.metadata, args.dists, args.packages)
+    d = Dist(name="foodist", conf=meta)
+    p = Package(pkgname="test", dist=d, conf=meta)
+    import pprint
+    pprint.pprint(p._metadata)
+    print(p.meta_file("prerm"))
+    print(d.order)
+
+if __name__ == "__main__":
+    args = getargs()
+    try:
+        main(args)
+    except Exception as e:
+        print("Abnormal Termination:", e, file=sys.stderr)
+        if args.debug:
+            traceback.print_exc()

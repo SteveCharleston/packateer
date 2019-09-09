@@ -1,0 +1,7 @@
+Description: A nonsense package without any use
+Source: test
+Maintainer: Steve Charleston
+Architecture: all
+Section: non-free/misc
+Priority: extra
+Depends: metaa, metab, metac
