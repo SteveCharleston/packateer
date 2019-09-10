@@ -29,11 +29,12 @@ def main(args: argparse.Namespace) -> None:
     meta = Metadata(args.metadata, args.dists, args.packages)
     d = Dist(name="foodist", conf=meta)
     p = Package(pkgname="aptly", dist=d, conf=meta)
-    import pprint
-    pprint.pprint(p._metadata)
-    pprint.pprint(p._vars)
-    print(p.meta_file("prerm"))
-    print(d.order)
+    #import pprint
+    #pprint.pprint(p._metadata)
+    #pprint.pprint(p._vars)
+    #print(p.meta_file("prerm"))
+    #print(d.order)
+    #p.build()
 
 if __name__ == "__main__":
     args = getargs()

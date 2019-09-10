@@ -1,5 +1,10 @@
 #!/bin/bash
 
-if [[ -e $storage/aptly.tar.gz ]]; then
-    curl -o $storage/aptly.tar.gz $downloadurl
-fi
+#if ! [[ -e $storage/aptly.tar.gz ]]; then
+    wget -O $storage/aptly.tar.gz $downloadurl
+#fi
+
+tar -xzf $storage/aptly.tar.gz -C $storage
+
+mkdir -p $workdir/usr/bin/
+cp $storage/aptly_*linux*/aptly $workdir/usr/bin/

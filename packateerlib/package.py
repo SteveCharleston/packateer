@@ -1,8 +1,11 @@
+import shutil
+import os
 import sys
 import yaml
 from contextlib import suppress
 from packateerlib import Dist, Metadata
 from pathlib import Path
+from subprocess import run
 from typing import Dict
 
 class Package(object):
@@ -147,5 +150,16 @@ class Package(object):
         """Creates a package with a helper program
 
         """
+        env = dict(PATH=os.environ['PATH'], **self._vars)
+        env['workdir'] = self._path / "workdir" / self._dist.name
+        env['storage'] = self._path / "storage" / self._dist.name
+
+        shutil.rmtree(env['workdir'])
+        env['workdir'].mkdir(parents=True, exist_ok=True)
+        env['storage'].mkdir(parents=True, exist_ok=True)
+
         for cur_dist in reversed(self._dist.order):
             build_file = self._metapath / cur_dist / "buildpkg"
+            if build_file.exists():
+                build_file.chmod(0o755)
+                run([build_file], env=env)
