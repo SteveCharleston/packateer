@@ -1,5 +1,6 @@
 import sys
 import yaml
+from contextlib import suppress
 from packateerlib import Dist, Metadata
 from pathlib import Path
 from typing import Dict
@@ -27,55 +28,82 @@ class Package(object):
         self._metapath =  self._path / "metadata"
         self._filespath = self._path / "files"
 
-        # generate metadata information
-        # read package tree
+        # generate metadata and variable information
         self._metadata: Dict[str, str] = dict()
-        if conf.data.get('packages', dict()).get(pkgname):
-            self._metadata.update(conf.data['packages'][pkgname])
+        self._vars: Dict[str, str] = dict()
 
-        for cur_dist in reversed(dist.order):
-            # get content from metadata
-            self._build_metadata(cur_dist)
-            #if (conf.data
-            #        .get("dists", {})
-            #        .get(cur_dist, {})
-            #        .get("packages", {})
-            #        .get(pkgname)):
-            #    self._metadata.update(
-            #            conf.data['dists'][cur_dist]["packages"][pkgname])
+        # get content from metadata
+        self._metadata = self._build_metadata()
+        # get vars from metadata
+        self._vars = self._build_vars()
 
-            ## handle package specific control file
-            #control_file = self._metapath / cur_dist / "control.yaml"
-            #if (control_file).exists():
-            #    try:
-            #        with open(control_file) as stream:
-            #            self._metadata.update(yaml.safe_load(stream))
-            #    except Exception as e:
-            #        # there is no file with loadable data
-            #        print(e, file=sys.stderr)
-
-    def _build_metadata(self, dist):
-        """Builds the dict with all metadata information.
-
-        Args:
-            dist (str): read metadata for given dist
+    def _build_vars(self):
+        """Updates the dict with all env variable information
 
         Returns:
-            dict: metadata for the given dist
+            dict: The vars for this package.
 
         """
-        if (self._conf.data.get("dists", {}).get(dist, {}).get("packages", {}).get(self._pkgname)):
-            self._metadata.update(self._conf.data['dists'][dist]["packages"][self._pkgname])
+        data: Dict[str, str] = dict()
 
-        # handle package specific control file
-        control_file = self._metapath / dist / "control.yaml"
-        if (control_file).exists():
-            try:
-                with open(control_file) as stream:
-                    self._metadata.update(yaml.safe_load(stream))
-            except Exception as e:
-                # there is no file with loadable data
-                print(e, file=sys.stderr)
+        # get the general values
+        if self._conf.data.get("vars"):
+            data.update(self._conf.data["vars"])
+
+        # get values for every distribution
+        for cur_dist in reversed(self._dist.order):
+            with suppress(KeyError): # distribution values
+               data.update(
+                       self._conf.data['dists'][cur_dist]["vars"])
+
+            with suppress(KeyError): # values from distribution package
+               data.update(
+                       self._conf.data
+                       ['dists'][cur_dist]["packages"][self._pkgname]['vars'])
+
+            # handle package specific control file
+            control_file = self._metapath / cur_dist / "control.yaml"
+            if (control_file).exists():
+                try:
+                    with open(control_file) as stream:
+                        loaded = yaml.safe_load(stream)
+                        if loaded.get('vars'):
+                            data.update(loaded['vars'])
+                except Exception as e:
+                    # there is no file with loadable data
+                    print(e, file=sys.stderr)
+
+        return data
+
+    def _build_metadata(self):
+        """Updates the dict with all metadata information.
+
+        Returns:
+            dict: The metadata for this package.
+
+        """
+        data: Dict[str, str] = dict()
+        with suppress(KeyError):
+            data.update(self._conf.data['packages'][self._pkgname])
+
+        for cur_dist in reversed(self._dist.order):
+            with suppress(KeyError):
+                data.update(
+                        self._conf.data
+                        ['dists'][cur_dist]["packages"][self._pkgname])
+
+            # handle package specific control file
+            control_file = self._metapath / cur_dist / "control.yaml"
+            if (control_file).exists():
+                try:
+                    with open(control_file) as stream:
+                        data.update(yaml.safe_load(stream))
+                except Exception as e:
+                    # there is no file with loadable data
+                    print(e, file=sys.stderr)
+
+        del data['vars']
+        return data
 
     def meta_file(self, fname: str) -> Path:
         """Returns the path to the given metadata or maintainer file.

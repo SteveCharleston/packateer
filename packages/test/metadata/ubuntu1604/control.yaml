@@ -1,1 +1,3 @@
 Conflicts: bardist
+vars:
+    ubuntuvar: 1604var

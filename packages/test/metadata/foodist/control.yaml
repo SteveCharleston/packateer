@@ -1,1 +1,3 @@
 Depends: foo, bar, baz
+vars:
+    testvar: antwortvar

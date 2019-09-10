@@ -5,3 +5,5 @@ Architecture: all
 Section: non-free/misc
 Priority: extra
 Depends: metaa, metab, metac
+vars:
+    alldistsvar: testvar

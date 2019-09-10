@@ -31,6 +31,7 @@ def main(args: argparse.Namespace) -> None:
     p = Package(pkgname="test", dist=d, conf=meta)
     import pprint
     pprint.pprint(p._metadata)
+    pprint.pprint(p._vars)
     print(p.meta_file("prerm"))
     print(d.order)
 
