@@ -1,0 +1,21 @@
+Package: aptly
+Architecture: amd64
+Priority: extra
+Section: universe/utils
+Maintainer: Steve Charleston
+Depends: bzip2, xz-utils, gnupg, gpgv, libc6 (>= 2.4)
+Suggests: graphviz
+Homepage: http://www.aptly.info
+Description-en: |+
+ Swiss army knife for Debian repository management
+ It offers several features making it easy to manage Debian package
+ repositories:
+ .
+  - make mirrors of remote Debian/Ubuntu repositories, limiting by
+    components/architectures
+  - take snapshots of mirrors at any point in time, fixing state of
+    repository at some moment of time
+  - publish snapshot as Debian repository, ready to be consumed by apt
+  - controlled update of one or more packages in snapshot from upstream
+    mirror, tracking dependencies
+  - merge two or more snapshots into one

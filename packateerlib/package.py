@@ -50,6 +50,10 @@ class Package(object):
         if self._conf.data.get("vars"):
             data.update(self._conf.data["vars"])
 
+        with suppress(KeyError):
+            data.update(self._conf.data['packages'][self._pkgname]['vars'])
+
+
         # get values for every distribution
         for cur_dist in reversed(self._dist.order):
             with suppress(KeyError): # distribution values
@@ -138,3 +142,10 @@ class Package(object):
 
         """
         return self._metadata.get(key)
+
+    def build(self):
+        """Creates a package with a helper program
+
+        """
+        for cur_dist in reversed(self._dist.order):
+            build_file = self._metapath / cur_dist / "buildpkg"

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+if [[ -e $storage/aptly.tar.gz ]]; then
+    curl -o $storage/aptly.tar.gz $downloadurl
+fi

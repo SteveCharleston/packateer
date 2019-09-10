@@ -28,7 +28,7 @@ def main(args: argparse.Namespace) -> None:
     """
     meta = Metadata(args.metadata, args.dists, args.packages)
     d = Dist(name="foodist", conf=meta)
-    p = Package(pkgname="test", dist=d, conf=meta)
+    p = Package(pkgname="aptly", dist=d, conf=meta)
     import pprint
     pprint.pprint(p._metadata)
     pprint.pprint(p._vars)
