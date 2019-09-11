@@ -6,7 +6,7 @@ from contextlib import suppress
 from packateerlib import Dist, Metadata
 from pathlib import Path
 from subprocess import run
-from typing import Dict
+from typing import Dict, List
 
 class Package(object):
 
@@ -36,9 +36,29 @@ class Package(object):
         self._vars: Dict[str, str] = dict()
 
         # get content from metadata
-        self._metadata = self._build_metadata()
+        self._metadata['Name'] = pkgname
+        self._metadata.update(self._build_metadata())
         # get vars from metadata
         self._vars = self._build_vars()
+
+
+    @property
+    def metadata(self):
+        """The package metadata."""
+        return self._metadata
+
+    @property
+    def vars(self):
+        """Package and distribution specific variables, normally used for the
+        buildpkg scripts.
+
+        """
+        return self._vars
+
+    @property
+    def dist_metadata(self):
+        return self._dist.metadata
+
 
     def _build_vars(self):
         """Updates the dict with all env variable information
@@ -82,6 +102,7 @@ class Package(object):
 
         return data
 
+
     def _build_metadata(self):
         """Updates the dict with all metadata information.
 
@@ -112,6 +133,27 @@ class Package(object):
         del data['vars']
         return data
 
+    @property
+    def conffiles(self):
+        """Returns a list of all conffiles
+        Returns:
+            list: Paths to the config files inside the package
+
+        """
+        conffiles: List[str] = list()
+        for cur_dist in self._dist.order:
+            dist_path = self._metapath / cur_dist / "conffiles"
+            if dist_path.exists():
+                try:
+                    with open(dist_path) as stream:
+                        conffiles.extend(
+                                [line.strip() for line in stream.readlines()])
+                except Exception as e:
+                    print(e, file=sys.stderr)
+
+        return conffiles
+
+
     def meta_file(self, fname: str) -> Path:
         """Returns the path to the given metadata or maintainer file.
 
@@ -123,7 +165,7 @@ class Package(object):
 
         """
         for cur_dist in self._dist.order:
-            dist_path =  self._metapath /cur_dist / fname
+            dist_path = self._metapath / cur_dist / fname
             if dist_path.exists():
                 return dist_path
         else:
@@ -150,6 +192,7 @@ class Package(object):
         """Creates a package with a helper program
 
         """
+        #TODO: remember to make functions from maintainer scripts includeable!
         env = dict(PATH=os.environ['PATH'], **self._vars)
         env['workdir'] = self._path / "workdir" / self._dist.name
         env['storage'] = self._path / "storage" / self._dist.name

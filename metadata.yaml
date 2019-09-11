@@ -13,13 +13,6 @@ dists:
     debian:
         pkgformat: deb
         distname: wheezy
-        vars:
-            httpduser: www-data
-            httpdusername: www-data
-            httpdgroup: www-data
-            httpdgroupname: www-data
-            proxygroup: proxy
-            proxygroupname: proxy
         packages:
             test:
                 vars:
@@ -34,6 +27,9 @@ dists:
                 Breaks: breaker
                 vars:
                     metaubuntu: erben
+    ubuntu1804:
+        distname: bionic
+        parent: debian
 
     foodist:
         parent: ubuntu1604

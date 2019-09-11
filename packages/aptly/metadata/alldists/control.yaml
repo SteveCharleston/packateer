@@ -6,7 +6,7 @@ Maintainer: Steve Charleston
 Depends: bzip2, xz-utils, gnupg, gpgv, libc6 (>= 2.4)
 Suggests: graphviz
 Homepage: http://www.aptly.info
-Description-en: |+
+Description: |+
  Swiss army knife for Debian repository management
  It offers several features making it easy to manage Debian package
  repositories:

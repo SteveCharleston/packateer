@@ -1,13 +1,16 @@
+from contextlib import suppress
 from packateerlib import Package
 from shlex import split
 from subprocess import run
 from typing import Dict, List
 
 class PkgCreater(object):
-    mapping: Dict[str, str] = {
+    """Create a concrete package from a package object."""
+
+    _mapping: Dict[str, str] = {
             "name" : 'Name',
             "description" : 'Description',
-            "version" : 'Version',
+            #"version" : 'Version',
             "maintainer" : 'Maintainer',
             "vendor" : 'Vendor',
             "architecture" : 'Architecture',
@@ -22,7 +25,12 @@ class PkgCreater(object):
             "category" : 'Section',
             }
 
-    """Create a concrete package from a package object."""
+    _metafiles: Dict[str, str] = {
+            "before-install" : 'preinst',
+            "after-install" : 'postinst',
+            "before-remove" : 'prerm',
+            "after-remove" : 'postrm',
+            }
 
     def __init__(self, pkg: Package) -> None:
         """Initializes variables for FPM.
@@ -35,10 +43,67 @@ class PkgCreater(object):
         self._pkg = pkg
 
         args: List[str] = ["--input-type", "dir"]
-        if not pkg.vars.get('pkgformat'):
-            args.extend(["--output-type", "deb"])
-        else:
-            args.extend(["--output-type", pkg.vars['pkgformat']])
 
-        import pprint
-        pprint.pprint(args)
+        pkgformat = "deb"
+        with suppress(KeyError):
+            pkgformat = pkg.vars['pkgformat']
+        args.extend(["--output-type", pkgformat])
+
+        # generate Version String
+        version = self._generate_version(pkg)
+        args.extend(["--version", version])
+
+        # map all fpm flags to the pkg metadata
+        for flag, metainfo in self._mapping.items():
+            if pkg.metadata.get(metainfo):
+                args.append("--" + flag)
+                args.append(pkg.metadata[metainfo])
+
+        # add fpm flags for maintainer scripts
+        for flag, metafile in self._metafiles.items():
+            if pkg.meta_file(metafile):
+                args.append("--" + flag)
+                args.append(str(pkg.meta_file(metafile)))
+
+        # distribution specific fields
+        if pkgformat == "deb":
+            args.append("--deb-use-file-permissions")
+        elif pkgformat == "rpm":
+            args.extend(["--epoch", "0", "--rpm-use-file-permissions"])
+
+        with suppress(KeyError):
+            args.extend(["--deb-field", "Breaks: " + pkg.metadata['Breaks']])
+
+        with suppress(KeyError):
+            args.extend(["--deb-field", "Tag: " + pkg.metadata['Tag']])
+
+        from pprint import pprint
+        pprint(args)
+        pprint(pkg.dist_metadata)
+        pprint(pkg.conffiles)
+
+    def _generate_version(self, pkg: Package):
+        """Generates a version string with distribution specific separator and
+        package revision.
+
+        Args:
+            pkg (Package): Package to generate the version for.
+
+        Returns:
+            str: Version string for the given Package.
+
+        """
+        pkg_rev = '0'
+        with suppress(KeyError):
+            pkg_rev = pkg.metadata['pkg-rev']
+
+        version_seperator = '-' # default to deb format
+        with suppress(KeyError):
+            if pkg.dist_metadata['pkgformat'] == "rpm":
+                version_seperator = "_"
+
+        pkg_version = '0'
+        with suppress(KeyError):
+            pkg_version = pkg.metadata['Version']
+
+        return "{}{}{}".format(pkg_version, version_seperator, pkg_rev)
