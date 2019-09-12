@@ -42,7 +42,8 @@ class Metadata(object):
         if dists:
             self._dists = dists.split(" ")
         else:
-            self._dists = [dist for dist in self._data.get("dists")]
+            self._dists = [dist for dist in self._data.get("dists")
+                    if not self._data["dists"][dist].get("abstract") == True]
 
 
         # load packages from metadata file or command line
@@ -51,13 +52,6 @@ class Metadata(object):
         else:
             self._packages = [pkg for pkg in self._data.get("packages")]
 
-    def __str__(self):
-        """String representation
-        Returns:
-            str: The name of the current distribution.
-
-        """
-        pass
     @property
     def dists(self) -> List[str]:
         """List of all distributions to build for.

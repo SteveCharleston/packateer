@@ -1,5 +1,6 @@
 from contextlib import suppress
 from packateerlib import Package
+from pathlib import Path
 from shlex import split
 from subprocess import run
 from typing import Dict, List
@@ -49,6 +50,8 @@ class PkgCreater(object):
             pkgformat = pkg.vars['pkgformat']
         args.extend(["--output-type", pkgformat])
 
+        args.extend(["--chdir", pkg.vars['workdir']])
+
         # generate Version String
         version = self._generate_version(pkg)
         args.extend(["--version", version])
@@ -77,12 +80,21 @@ class PkgCreater(object):
         with suppress(KeyError):
             args.extend(["--deb-field", "Tag: " + pkg.metadata['Tag']])
 
-        from pprint import pprint
-        pprint(args)
-        pprint(pkg.dist_metadata)
-        pprint(pkg.conffiles)
+        for conf in pkg.conffiles:
+            args.extend(["--config-files", conf])
 
-    def _generate_version(self, pkg: Package):
+        distpath = Path("./dists/{}".format(pkg.dist_name))
+        with suppress(KeyError):
+            distpath = Path("{}/{}".format(pkg.vars['distpath'], pkg.dist_name))
+
+        distpath.mkdir(parents=True, exist_ok=True)
+
+        args.extend(["--package", distpath])
+        args.append("--force")
+
+        self._fpm_arguments = args
+
+    def _generate_version(self, pkg: Package) -> str:
         """Generates a version string with distribution specific separator and
         package revision.
 
@@ -107,3 +119,10 @@ class PkgCreater(object):
             pkg_version = pkg.metadata['Version']
 
         return "{}{}{}".format(pkg_version, version_seperator, pkg_rev)
+
+    def build(self) -> None:
+        """Starts fpm with all generated flags and therefore creates a package.
+        Returns: None
+
+        """
+        run(["fpm"] + self._fpm_arguments)

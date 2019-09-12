@@ -1,4 +1,4 @@
 from .metadata import Metadata
-from .dist import Dist
-from .package import Package
+from packateerlib.dist import Dist
+from packateerlib.package import Package
 from .pkgcreater import PkgCreater

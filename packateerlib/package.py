@@ -40,6 +40,8 @@ class Package(object):
         self._metadata.update(self._build_metadata())
         # get vars from metadata
         self._vars = self._build_vars()
+        self._vars['workdir'] = self._path / "workdir" / self._dist.name
+        self._vars['storage'] = self._path / "storage" / self._dist.name
 
 
     @property
@@ -54,6 +56,10 @@ class Package(object):
 
         """
         return self._vars
+
+    @property
+    def dist_name(self):
+        return self._dist.name
 
     @property
     def dist_metadata(self):
@@ -189,20 +195,29 @@ class Package(object):
         return self._metadata.get(key)
 
     def build(self):
-        """Creates a package with a helper program
+        """Runs all build scripts to create all package files.
 
         """
         #TODO: remember to make functions from maintainer scripts includeable!
+        #TODO: multiarch support, build multiple packages with their dependencies
         env = dict(PATH=os.environ['PATH'], **self._vars)
-        env['workdir'] = self._path / "workdir" / self._dist.name
-        env['storage'] = self._path / "storage" / self._dist.name
+        env['workdir'] = str(self._vars['workdir'])
+        env['storage'] = str(self._vars['storage'])
 
-        shutil.rmtree(env['workdir'])
-        env['workdir'].mkdir(parents=True, exist_ok=True)
-        env['storage'].mkdir(parents=True, exist_ok=True)
+        shutil.rmtree(self._vars['workdir'], ignore_errors=True)
+        self._vars['workdir'].mkdir(parents=True, exist_ok=True)
+        self._vars['storage'].mkdir(parents=True, exist_ok=True)
 
         for cur_dist in reversed(self._dist.order):
             build_file = self._metapath / cur_dist / "buildpkg"
             if build_file.exists():
                 build_file.chmod(0o755)
                 run([build_file], env=env)
+
+    def create(self):
+        """Creates a package with a helper program.
+
+        """
+        from packateerlib import PkgCreater # avoid circular dependencies
+        pkgcreater = PkgCreater(self)
+        pkgcreater.build()

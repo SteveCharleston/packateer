@@ -37,6 +37,19 @@ class Dist(object):
 
         self._metadata: Dict[str, str] = self._build_metadata()
 
+    def build(self) -> None:
+        """Creates and builds all Packages of the distribution.
+        Returns: None
+
+        """
+        from packateerlib import Package # avoid circular dependency
+        for pkgname in self._conf.packages:
+            print("Building: " + pkgname)
+            pkg = Package(pkgname=pkgname, dist=self, conf=self._conf)
+            pkg.build()
+            pkg.create()
+
+
     def _build_metadata(self):
         """Builds a dict with all distribution specific variables
         Returns:
@@ -63,10 +76,10 @@ class Dist(object):
         return self._name
 
     @property
-    def metadata(self):
+    def metadata(self) -> str:
         return self._metadata
 
-    def __str__(self):
+    def __str__(self) -> str:
         """String representation
         Returns:
             str: The name of the current distribution.

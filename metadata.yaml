@@ -1,5 +1,6 @@
 vars:
     pkgpath: ./packages/
+    distpath: ./dists/
 
 packages:
     aptly:
@@ -13,6 +14,7 @@ dists:
     debian:
         pkgformat: deb
         distname: wheezy
+        abstract: true
         packages:
             test:
                 vars:
