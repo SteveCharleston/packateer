@@ -3,6 +3,7 @@ import os
 import sys
 import yaml
 from contextlib import suppress
+from distutils.dir_util import copy_tree
 from packateerlib import Dist, Metadata
 from pathlib import Path
 from subprocess import run
@@ -200,6 +201,7 @@ class Package(object):
         """
         #TODO: remember to make functions from maintainer scripts includeable!
         #TODO: multiarch support, build multiple packages with their dependencies
+        #TODO: Define files directory
         env = dict(PATH=os.environ['PATH'], **self._vars)
         env['workdir'] = str(self._vars['workdir'])
         env['storage'] = str(self._vars['storage'])
@@ -208,6 +210,13 @@ class Package(object):
         self._vars['workdir'].mkdir(parents=True, exist_ok=True)
         self._vars['storage'].mkdir(parents=True, exist_ok=True)
 
+        # copy files
+        for cur_dist in reversed(self._dist.order):
+            files_dir = self._filespath / cur_dist
+            if files_dir.exists():
+                copy_tree(str(files_dir), str(self._vars['workdir']))
+
+        # execute build scripts
         for cur_dist in reversed(self._dist.order):
             build_file = self._metapath / cur_dist / "buildpkg"
             if build_file.exists():
