@@ -63,6 +63,10 @@ class Package(object):
         return self._dist.name
 
     @property
+    def dist_path(self):
+        return self._dist.distpath
+
+    @property
     def dist_metadata(self):
         return self._dist.metadata
 

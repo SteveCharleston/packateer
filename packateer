@@ -5,9 +5,7 @@ import argparse
 import sys
 import traceback
 import yaml
-from packateerlib.dist import Dist
-from packateerlib.package import Package
-from packateerlib import Metadata, PkgCreater
+from packateerlib import Dist, Metadata, Package, PkgCreater, RepoCreater
 
 def getargs() -> argparse.Namespace:
     """Parses the command line arguments.
@@ -29,10 +27,7 @@ def main(args: argparse.Namespace) -> None:
 
     """
     meta = Metadata(args.metadata, args.dists, args.packages)
-    for distname in meta.dists:
-        print("Building: " + distname)
-        dist = Dist(name=distname, conf=meta)
-        dist.build()
+
     #d = Dist(name="ubuntu1804", conf=meta)
     #p = Package(pkgname="aptly", dist=d, conf=meta)
     #f = PkgCreater(p)
@@ -43,6 +38,15 @@ def main(args: argparse.Namespace) -> None:
     #print(p.meta_file("prerm"))
     #print(d.order)
     #p.build()
+
+    for distname in meta.dists:
+        print("Building: " + distname)
+        dist = Dist(name=distname, conf=meta)
+        print(dist.distpath)
+        dist.build()
+
+        repo = RepoCreater(dist=dist, conf=meta)
+        repo.build()
 
 if __name__ == "__main__":
     args = getargs()

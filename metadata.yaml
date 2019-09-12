@@ -1,6 +1,7 @@
 vars:
     pkgpath: ./packages/
     distpath: ./dists/
+    repopath: ./repos/
 
 packages:
     aptly:

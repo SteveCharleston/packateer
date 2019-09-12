@@ -1,6 +1,7 @@
 from contextlib import suppress
 from itertools import product
 from packateerlib import Metadata
+from pathlib import Path
 from typing import Dict, List
 
 class Dist(object):
@@ -9,6 +10,12 @@ class Dist(object):
     distkeys = [
             "pkgformat",
             "distname",
+            "origin",
+            "label",
+            "architecture",
+            "component",
+            "description",
+            "signwith",
             ]
 
     def __init__(self, name: str, conf: Metadata) -> None:
@@ -37,6 +44,10 @@ class Dist(object):
 
         self._metadata: Dict[str, str] = self._build_metadata()
 
+        self._distpath = Path("./dists/{}".format(name))
+        with suppress(KeyError):
+            self._distpath = Path("{}/{}".format(self._metadata['distpath'], name))
+
     def build(self) -> None:
         """Creates and builds all Packages of the distribution.
         Returns: None
@@ -63,6 +74,9 @@ class Dist(object):
                     dist_key : self._conf.data['dists'][cur_dist][dist_key]
                     })
 
+        if not data.get("pkgformat"):
+            data["pkgformat"] = "deb" # default do debian distribution
+
         return data
 
     @property
@@ -76,8 +90,12 @@ class Dist(object):
         return self._name
 
     @property
-    def metadata(self) -> str:
+    def metadata(self) -> Dict[str, str]:
         return self._metadata
+
+    @property
+    def distpath(self):
+        return self._distpath
 
     def __str__(self) -> str:
         """String representation

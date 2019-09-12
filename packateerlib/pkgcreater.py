@@ -1,3 +1,4 @@
+import errno
 from contextlib import suppress
 from packateerlib import Package
 from pathlib import Path
@@ -11,7 +12,6 @@ class PkgCreater(object):
     _mapping: Dict[str, str] = {
             "name" : 'Name',
             "description" : 'Description',
-            #"version" : 'Version',
             "maintainer" : 'Maintainer',
             "vendor" : 'Vendor',
             "architecture" : 'Architecture',
@@ -20,8 +20,6 @@ class PkgCreater(object):
             "depends" : 'Depends',
             "conflicts" : 'Conflicts',
             "replaces" : 'Replaces',
-            #"deb-field Breaks:" : 'Breaks',
-            #"deb-field Tag:" : 'Tag',
             "url" : 'Homepage',
             "category" : 'Section',
             }
@@ -83,13 +81,11 @@ class PkgCreater(object):
         for conf in pkg.conffiles:
             args.extend(["--config-files", conf])
 
-        distpath = Path("./dists/{}".format(pkg.dist_name))
-        with suppress(KeyError):
-            distpath = Path("{}/{}".format(pkg.vars['distpath'], pkg.dist_name))
+        # create distribution directory for the packages
+        pkg.dist_path.mkdir(parents=True, exist_ok=True)
 
-        distpath.mkdir(parents=True, exist_ok=True)
-
-        args.extend(["--package", distpath])
+        args.extend(["--package", pkg.dist_path])
+        args.extend(["--log", 'error'])
         args.append("--force")
 
         self._fpm_arguments = args
@@ -125,4 +121,10 @@ class PkgCreater(object):
         Returns: None
 
         """
-        run(["fpm"] + self._fpm_arguments)
+        try:
+            run(["fpm"] + self._fpm_arguments)
+        except OSError as e:
+            if e.errno == errno.ENOENT:
+                raise OSError("Package builder 'fpm' is not installed!")
+            else:
+                raise
