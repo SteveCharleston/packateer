@@ -28,6 +28,8 @@ class Metadata(object):
         # load all data from metadata file
         with open(path) as stream:
             self._data = yaml.safe_load(stream)
+            if not self._data:
+                self._data = dict()
 
 
         # get the path to the package directories
@@ -41,16 +43,20 @@ class Metadata(object):
         # load dists from metadata file or command line
         if dists:
             self._dists = dists.split(" ")
-        else:
+        elif self._data.get("dists"):
             self._dists = [dist for dist in self._data.get("dists")
                     if not self._data["dists"][dist].get("abstract") == True]
+        else:
+            self._dists = list() # handle no dists in config
 
 
         # load packages from metadata file or command line
         if packages:
             self._packages = packages.split(" ")
-        else:
+        elif self._data.get("packages"):
             self._packages = [pkg for pkg in self._data.get("packages")]
+        else:
+            self._packages = list()
 
     @property
     def dists(self) -> List[str]:
