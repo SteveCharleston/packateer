@@ -141,7 +141,9 @@ class Package(object):
                     # there is no file with loadable data
                     print(e, file=sys.stderr)
 
-        del data['vars']
+        if data.get('vars'): # delete vars, they're handled separately
+            del data['vars']
+
         return data
 
     @property
