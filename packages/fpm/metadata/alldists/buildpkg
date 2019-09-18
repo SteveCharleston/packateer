@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# directory for additional ruby libraries
+mkdir -p $workdir/usr/lib/ruby/vendor_ruby/
+mkdir -p $workdir/usr/lib/ruby/templates/
+mkdir -p $workdir/usr/bin/
+
+# download gems
+gem install --ignore-dependencies --no-ri --no-rdoc --install-dir $storage/rubydeps/ pleaserun io-like ruby-xz arr-pm fpm &> /dev/null
+
+# move everything in place
+for gem in $storage/rubydeps/gems/*; do
+    cp -r $gem/lib/* $workdir/usr/lib/ruby/vendor_ruby/
+
+    if [[ -e $gem/bin/ ]]; then
+        cp $gem/bin/* $workdir/usr/bin/
+    fi
+
+    if [[ -e $gem/templates/ ]]; then
+        cp -r $gem/templates/* $workdir/usr/lib/ruby/templates/
+    fi
+done

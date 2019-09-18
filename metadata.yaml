@@ -8,8 +8,8 @@ packages:
         Version: 1.4.0
         vars:
             downloadurl: "https://github.com/aptly-dev/aptly/releases/download/v1.4.0/aptly_1.4.0_linux_amd64.tar.gz"
-    test:
-        Version: 1.0.0
+    fpm:
+        Version: 1.11.0
 
 dists:
     debian:
@@ -17,10 +17,8 @@ dists:
         distname: wheezy
         abstract: true
         packages:
-            test:
-                vars:
-                    zwischendist: vorhanden
-                pkg-rev: 1337
+            fpm:
+                pkg-rev: 0
     ubuntu1604:
         pkgformat: deb
         distname: xenial

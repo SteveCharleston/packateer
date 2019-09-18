@@ -1,0 +1,7 @@
+Package: fpm
+Architecture: all
+Priority: extra
+Section: universe/utils
+Maintainer: Steve Charleston
+Depends: ruby | ruby-interpreter, ruby-stud, ruby-dotenv, ruby-insist, ruby-mustache, ruby-clamp, ruby-cabin, ruby-ffi, ruby-childprocess, ruby-backports, ruby-json
+Homepage: https://github.com/jordansissel/fpm
