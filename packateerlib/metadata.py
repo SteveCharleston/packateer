@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import os
+import pytest
 import sys
 import yaml
 from pathlib import Path
@@ -23,10 +24,16 @@ class Metadata(object):
             packages (str): Space separated list of packages to build.
 
         """
-        self._path = path
+        try:
+            self._path = Path(path)
+        except TypeError as e:
+            self._path = Path("./metadata.yaml")
+
+        if not self._path.exists():
+            raise FileNotFoundError("Metadata file not found")
 
         # load all data from metadata file
-        with open(path) as stream:
+        with open(self._path) as stream:
             self._data = yaml.safe_load(stream)
             if not self._data:
                 self._data = dict()
@@ -36,7 +43,7 @@ class Metadata(object):
         if self._data.get('vars', dict()).get('pkgpath'):
             self._pkgpath = Path(self._data['vars']['pkgpath']).absolute()
         else:
-            dirpath = Path(path).absolute().parent
+            dirpath = Path(self._path).absolute().parent
             self._pkgpath = dirpath / "packages"
 
 

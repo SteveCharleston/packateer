@@ -1,6 +1,8 @@
+import pytest
 import yaml
 from unittest.mock import patch, mock_open
 from packateerlib import Metadata
+from pathlib import Path
 
 minimal_yaml = """
 """
@@ -62,25 +64,34 @@ dists:
                 pkg-rev: 0
 """
 
+def test_nopath(monkeypatch):
+    monkeypatch.setattr(Path, "exists", lambda self: False)
+    with pytest.raises(FileNotFoundError):
+        m = Metadata(None)
+
 def test_minimal_dists_pkg(monkeypatch):
+    monkeypatch.setattr(Path, "exists", lambda self: True)
     with patch("builtins.open", mock_open(read_data=minimal_yaml)) as mock_file:
         m = Metadata("dummypath", "debian", "test")
         assert m.packages == ["test"]
         assert m.dists == ["debian"]
 
-def test_minimal_no_params():
+def test_minimal_no_params(monkeypatch):
+    monkeypatch.setattr(Path, "exists", lambda self: True)
     with patch("builtins.open", mock_open(read_data=minimal_yaml)) as mock_file:
         m = Metadata("dummypath")
         assert m.packages == []
         assert m.dists == []
 
-def test_minimal_lists_params():
+def test_minimal_lists_params(monkeypatch):
+    monkeypatch.setattr(Path, "exists", lambda self: True)
     with patch("builtins.open", mock_open(read_data=minimal_yaml)) as mock_file:
         m = Metadata("dummypath", dists="foo bar baz", packages="uno does tres")
         assert m.dists == ["foo", "bar", "baz"]
         assert m.packages == ["uno", "does", "tres"]
 
-def test_normal_no_params():
+def test_normal_no_params(monkeypatch):
+    monkeypatch.setattr(Path, "exists", lambda self: True)
     with patch("builtins.open", mock_open(read_data=normal_yaml)) as mock_file:
         m = Metadata("dummypath")
         assert set(m.packages) == set(["aptly", "fpm"])
