@@ -65,7 +65,7 @@ dists:
 """
 
 def test_nopath(monkeypatch):
-    monkeypatch.setattr(Path, "exists", lambda self: False)
+    monkeypatch.chdir("/tmp/")
     with pytest.raises(FileNotFoundError):
         m = Metadata(None)
 
