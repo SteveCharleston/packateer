@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 import os
-import pytest
 import sys
 import yaml
 from pathlib import Path
