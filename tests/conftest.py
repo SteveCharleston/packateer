@@ -58,6 +58,7 @@ dists:
         packages:
             test:
                 pkg-rev: 0
+            pktest: {}
 """
 
 @pytest.fixture()

@@ -1,8 +1,5 @@
 import pytest
-import yaml
-from unittest.mock import patch, mock_open
 from packateerlib import Metadata
-from pathlib import Path
 
 
 def test_nopath(monkeypatch):
