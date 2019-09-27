@@ -1,7 +1,9 @@
-minimal_yaml = """
+import pytest
+
+minimal = """
 """
 
-normal_yaml = """
+normal = """
 vars:
     pkgpath: ./packages/
     distpath: ./dists/
@@ -58,3 +60,10 @@ dists:
                 pkg-rev: 0
 """
 
+@pytest.fixture()
+def minimal_yaml():
+    return minimal
+
+@pytest.fixture()
+def normal_yaml():
+    return normal

@@ -11,7 +11,13 @@ def test_nopath(monkeypatch):
         m = Metadata(None)
 
 
-def test_minimal_dists_pkg(tmpdir):
+def test_missing_path(monkeypatch):
+    monkeypatch.chdir("/tmp/")
+    with pytest.raises(FileNotFoundError):
+        m = Metadata("metadata.yaml")
+
+
+def test_minimal_dists_pkg(tmpdir, minimal_yaml):
     yaml = tmpdir.join("metadata.yaml")
     yaml.write(minimal_yaml)
 
@@ -20,7 +26,7 @@ def test_minimal_dists_pkg(tmpdir):
     assert m.dists == ["debian"]
 
 
-def test_minimal_no_params(tmpdir):
+def test_minimal_no_params(tmpdir, minimal_yaml):
     yaml = tmpdir.join("metadata.yaml")
     yaml.write(minimal_yaml)
 
@@ -29,7 +35,7 @@ def test_minimal_no_params(tmpdir):
     assert m.dists == []
 
 
-def test_minimal_lists_params(tmpdir):
+def test_minimal_lists_params(tmpdir, minimal_yaml):
     yaml = tmpdir.join("metadata.yaml")
     yaml.write(minimal_yaml)
 
@@ -37,7 +43,7 @@ def test_minimal_lists_params(tmpdir):
     assert m.dists == ["foo", "bar", "baz"]
     assert m.packages == ["uno", "does", "tres"]
 
-def test_normal_no_params(tmpdir):
+def test_normal_no_params(tmpdir, normal_yaml):
     yaml = tmpdir.join("metadata.yaml")
     yaml.write(normal_yaml)
 
