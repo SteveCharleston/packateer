@@ -1,6 +1,6 @@
 import errno
 from contextlib import suppress
-from packateerlib import Package
+from packateerlib import Package as Package
 from pathlib import Path
 from shlex import split
 from subprocess import run

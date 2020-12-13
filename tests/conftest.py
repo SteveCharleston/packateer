@@ -16,6 +16,9 @@ packages:
             downloadurl: "https://github.com/aptly-dev/aptly/releases/download/v1.4.0/aptly_1.4.0_linux_amd64.tar.gz"
     fpm:
         Version: 1.11.0
+    testpkg:
+        Version: 1.0.0
+    emptypkg: {}
 
 dists:
     debian:
@@ -58,7 +61,7 @@ dists:
         packages:
             test:
                 pkg-rev: 0
-            pktest: {}
+            testpkg: {}
 """
 
 @pytest.fixture()

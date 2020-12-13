@@ -45,5 +45,5 @@ def test_normal_no_params(tmpdir, normal_yaml):
     yaml.write(normal_yaml)
 
     m = Metadata(yaml)
-    assert set(m.packages) == set(["aptly", "fpm"])
+    assert set(m.packages) == set(["aptly", "fpm", "emptypkg", "testpkg"])
     assert set(m.dists) == set(["ubuntu1604", "ubuntu1804", "foodist", "centos7"])

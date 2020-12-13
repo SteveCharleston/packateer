@@ -1,10 +1,11 @@
 from contextlib import suppress
 from itertools import product
-from packateerlib import Metadata
 from pathlib import Path
 from typing import Dict, List
 
-class Dist(object):
+from packateerlib import Metadata
+
+class Dist():
     """Represents a distribution"""
 
     distkeys = [

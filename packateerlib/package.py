@@ -1,13 +1,13 @@
-import shutil
 import os
+import shutil
 import sys
-import yaml
 from contextlib import suppress
 from distutils.dir_util import copy_tree
-from packateerlib import Dist, Metadata
 from pathlib import Path
 from subprocess import run
 from typing import Dict, List
+import yaml
+from packateerlib import Dist, Metadata
 
 class Package(object):
 
@@ -91,13 +91,13 @@ class Package(object):
         # get values for every distribution
         for cur_dist in reversed(self._dist.order):
             with suppress(KeyError): # distribution values
-               data.update(
-                       self._conf.data['dists'][cur_dist]["vars"])
+                data.update(
+                    self._conf.data['dists'][cur_dist]["vars"])
 
             with suppress(KeyError): # values from distribution package
-               data.update(
-                       self._conf.data
-                       ['dists'][cur_dist]["packages"][self._pkgname]['vars'])
+                data.update(
+                    self._conf.data
+                    ['dists'][cur_dist]["packages"][self._pkgname]['vars'])
 
             # handle package specific control file
             control_file = self._metapath / cur_dist / "control.yaml"
